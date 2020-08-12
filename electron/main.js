@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 const url = require("url");
-
+autoUpdater.logger = require("electron-log");
+autoUpdater.logger.transports.file.level = "info";
 const { channels } = require("../src/shared/constants");
 let mainWindow;
 function createWindow() {
@@ -25,6 +26,7 @@ function createWindow() {
     mainWindow = null;
   });
   mainWindow.once("ready-to-show", () => {
+    console.log("Checking for updates");
     autoUpdater.checkForUpdatesAndNotify();
   });
 }
@@ -48,9 +50,17 @@ ipcMain.on(channels.APP_INFO, (event) => {
 });
 
 autoUpdater.on(channels.UPDATE_AVAILABLE, () => {
+  console.log("available");
   mainWindow.webContents.send(channels.UPDATE_AVAILABLE);
 });
+autoUpdater.on(channels.UPDATE_CHECKING, () => {
+  mainWindow.webContents.send(channels.UPDATE_CHECKING);
+});
+autoUpdater.on(channels.UPDATE_NOT_AVAILABLE, () => {
+  mainWindow.webContents.send(channels.UPDATE_NOT_AVAILABLE);
+});
 autoUpdater.on(channels.UPDATE_DOWNLOADED, () => {
+  console.log("downloaded");
   mainWindow.webContents.send(channels.UPDATE_DOWNLOADED);
 });
 ipcMain.on(channels.RESTART_APP, () => {
