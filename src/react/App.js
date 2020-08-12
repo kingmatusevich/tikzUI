@@ -1,9 +1,32 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import Main from "./Main";
 import { channels } from "../shared/constants";
-const { ipcRenderer } = window;
 
+const ipcRenderer = window.ipcRenderer || {
+  on: () => {},
+  send: () => {},
+  removeAllListeners: () => {},
+};
+
+const DEFAULT_FILE_CONTENT = {
+  figures: [
+    {
+      name: "Figure 1",
+    },
+    {
+      name: "Figure 2",
+    },
+    {
+      name: "Figure 3",
+    },
+    {
+      name: "Figure 4",
+    },
+  ],
+  activeFigureIndex: null,
+};
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -13,6 +36,7 @@ class App extends React.Component {
       updateChecking: false,
       updateAvailable: false,
       updateDownloaded: false,
+      openFile: null,
     };
     ipcRenderer.send(channels.APP_INFO);
     ipcRenderer.on(channels.APP_INFO, (event, arg) => {
@@ -49,22 +73,11 @@ class App extends React.Component {
       updateAvailable,
       updateChecking,
       updateDownloaded,
+      openFile,
     } = this.state;
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            {appName} version {appVersion}
-          </p>
-          <p>
-            {updateAvailable && !updateDownloaded
-              ? "Update being downloaded"
-              : null}
-            {updateAvailable && updateDownloaded ? "Update ready" : null}
-            {updateChecking ? "Checking for updates..." : null}
-          </p>
-        </header>
+      <div>
+        <Main openFile={openFile} initialContent={DEFAULT_FILE_CONTENT} />
       </div>
     );
   }
