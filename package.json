@@ -2,7 +2,7 @@
   "name": "tikz-ui-electron-app",
   "author": "Javier Matusevich",
   "description": "This app can build and compile Tikz graphs with a GUI",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "private": true,
   "productName": "Tikz UI",
   "main": "electron/main.js",
@@ -16,6 +16,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "electron-log": "^4.2.3",
+    "electron-notarize": "^1.0.0",
     "electron-updater": "^4.3.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -40,7 +41,7 @@
     "start-electron": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
     "build-electron": "mkdir -p build/src && cp -r electron/. build/electron && cp -r src/shared/. build/src/shared",
     "package": "electron-builder build --config=electron-builder.yml  --mac --win -c.extraMetadata.main=build/electron/main.js --publish never",
-    "deploy": "electron-builder build --config=electron-builder.yml --mac --win -c.extraMetadata.main=build/electron/main.js --publish always"
+    "deploy": "export $(cat .env | xargs) && electron-builder build --config=electron-builder.yml --mac --win -c.extraMetadata.main=build/electron/main.js --publish always"
   },
   "eslintConfig": {
     "extends": "react-app"

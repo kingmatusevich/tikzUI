@@ -64,7 +64,7 @@ class App extends React.Component {
             {updateAvailable && updateDownloaded ? "Update ready" : null}
             {updateChecking ? "Checking for updates..." : null}
           </p>
-          <p>__</p>
+          <p>_+__+_</p>
         </header>
       </div>
     );
