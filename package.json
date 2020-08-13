@@ -2,7 +2,7 @@
   "name": "tikz-ui-electron-app",
   "author": "Javier Matusevich",
   "description": "This app can build and compile Tikz graphs with a GUI",
-  "version": "0.2",
+  "version": "0.2.0",
   "private": true,
   "productName": "Tikz UI",
   "main": "electron/main.js",
