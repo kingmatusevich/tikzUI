@@ -82,7 +82,7 @@ function Main(props) {
   return (
     <Container fluid>
       <Grid style={{ height: "100vh" }} compact>
-        <Grid.Column width={4} stretched color="blue">
+        <Grid.Column width={2} stretched color="blue">
           <Segment basic style={{ paddingRight: 0 }}>
             <Header inverted style={{ marginLeft: 14 }}>
               Figures{" "}
@@ -136,7 +136,7 @@ function Main(props) {
         </Grid.Column>
         <Grid.Column
           stretched
-          width={6}
+          width={8}
           style={{ height: "100vh", overflowY: "scroll" }}>
           {!activeFigure ? null : (
             <Segment basic>
@@ -181,27 +181,32 @@ function Main(props) {
           stretched
           width={6}
           color="pink"
-          style={{ display: "flex", paddingLeft: 0, paddingBottom: 0 }}>
-          {!activeFigure ? null : (
-            <Segment basic style={{ flex: 0 }}>
-              <Header>
-                {activeFigure.name}
-
-                <Header.Subheader>Preview</Header.Subheader>
-              </Header>
-              <code style={{ whiteSpace: "pre-line" }}>
-                {activeFigure.latexRepresentation(false)}
-              </code>
-            </Segment>
-          )}
+          style={{
+            display: "flex",
+            paddingLeft: 0,
+            paddingBottom: 0,
+            paddingRight: 0,
+          }}>
           {pathToRender ? (
             <iframe
               frameBorder="0"
-              style={{ width: "100%", flex: 1, flexGrow: 2, padding: -10 }}
+              style={{ width: "100%", flex: 0.5, flexGrow: 1 }}
               src={"file://" + pathToRender}
               type="application/pdf"
             />
           ) : null}
+          {!activeFigure ? null : (
+            <Segment
+              basic
+              style={{ maxHeight: "40vh", flex: 0.5, overflowY: "scroll" }}>
+              <code
+                style={{
+                  whiteSpace: "pre-line",
+                }}>
+                {activeFigure.latexRepresentation(false)}
+              </code>
+            </Segment>
+          )}
         </Grid.Column>
       </Grid>
     </Container>

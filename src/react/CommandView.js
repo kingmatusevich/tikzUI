@@ -6,23 +6,25 @@ import {
   Checkbox,
   Input,
   Button,
+  Header,
+  Accordion,
+  Popup,
 } from "semantic-ui-react";
-import { Segment as SegmentType, Point } from "./types/index";
-const colorOptions = [
-  { key: "black", text: "Black", value: "black" },
-  { key: "white", text: "White", value: "white" },
-];
+import {
+  Segment as SegmentType,
+  Point,
+  Colors,
+  LineSizes,
+  LineStyles,
+  Shapes,
+  TextPositions,
+  TextAlign,
+} from "./types/index";
+const colorOptions = Colors;
 
-const thicknessOptions = [
-  { key: "thin", text: "Thin", value: 0.1 },
-  { key: "thick", text: "Thick", value: 1 },
-];
+const thicknessOptions = LineSizes;
 
-const styleOptions = [
-  { key: "line", text: "Line", value: "line" },
-  { key: "dashed", text: "Dashed", value: "dashed" },
-  { key: "dotted", text: "Dotted", value: "dotted" },
-];
+const styleOptions = LineStyles;
 function ColorPicker(props) {
   const [options, setOptions] = useState(colorOptions);
   const handleAddition = useCallback((e, { value }) => {
@@ -32,9 +34,12 @@ function ColorPicker(props) {
   return (
     <Form.Dropdown
       allowAdditions
-      placeholder="Color"
+      placeholder={props.placeholder || "Color"}
       search
-      selection
+      selection={props.secondary ? undefined : true}
+      size={props.size}
+      width={props.width}
+      label={props.label}
       onAddItem={handleAddition}
       options={options}
       onChange={(e, { value: nValue }) => onChange(nValue)}
@@ -97,6 +102,18 @@ function DrawCommandView(props) {
             onChange(ncommand);
           }}
         />
+        <ColorPicker
+          value={command.fill}
+          placeholder={"Fill"}
+          onChange={(color) => {
+            let ncommand = command;
+            ncommand.fill = color;
+            console.log(ncommand);
+            onChange(ncommand);
+          }}
+        />
+      </Form.Group>
+      <Form.Group>
         <ThicknessPicker
           value={command.thickness}
           onChange={(thickness) => {
@@ -106,8 +123,6 @@ function DrawCommandView(props) {
             onChange(ncommand);
           }}
         />
-      </Form.Group>
-      <Form.Group>
         <StylePicker
           value={command.style}
           onChange={(style) => {
@@ -117,43 +132,183 @@ function DrawCommandView(props) {
             onChange(ncommand);
           }}
         />
+      </Form.Group>
+      <Header>
         <Form.Button
-          size="tiny"
-          content="Add Segment"
+          icon="add"
+          circular
+          floated="right"
+          color="blue"
           onClick={() => {
             let nCommand = command;
             nCommand.segments = [...command.segments, new SegmentType(false)];
             onChange(nCommand);
           }}
         />
-      </Form.Group>
+        Segments{" "}
+      </Header>
     </Form>
   );
 }
 
 function PointElement(props) {
   const { point, onChange } = props;
+  const [viewDetails, setViewDetails] = useState(false);
+
   return (
-    <Form.Group>
-      <Input
-        size="mini"
-        type="number"
-        value={point.x}
-        label="x"
-        onChange={(e, { value }) => {
-          onChange(new Point(Number(value), point.y));
-        }}
-      />
-      <Input
-        type="number"
-        size="mini"
-        value={point.y}
-        label="y"
-        onChange={(e, { value }) => {
-          onChange(new Point(point.x, Number(value)));
-        }}
-      />
-    </Form.Group>
+    <Form>
+      <Form.Group inline>
+        <Form.Input
+          size="mini"
+          width="4"
+          value={point.x}
+          label="x"
+          onChange={(e, { value }) => {
+            if (value == "") {
+              onChange(new Point(value, point.y));
+              return;
+            }
+            if (!isNaN(value)) {
+              onChange(new Point(Number(value), point.y));
+            }
+          }}
+        />
+        <Form.Input
+          size="mini"
+          width="4"
+          value={point.y}
+          label="y"
+          onChange={(e, { value }) => {
+            if (value == "") {
+              onChange(new Point(point.x, value));
+              return;
+            }
+            if (!isNaN(value)) {
+              onChange(new Point(point.x, Number(value)));
+            }
+          }}
+        />
+        <Popup
+          trigger={<Form.Button size="mini">Details</Form.Button>}
+          header=""
+          wide="very"
+          content={
+            <Form style={{ minWidth: 550 }}>
+              <label>Shape</label>
+              <Form.Group inline>
+                <Form.Dropdown
+                  label="Kind"
+                  size="mini"
+                  width="4"
+                  options={Shapes}
+                  value={point.node.shape}
+                  placeholder="None"
+                  onChange={(e, { value }) => {
+                    let nPoint = point;
+                    nPoint.node.shape = value;
+                    onChange(nPoint);
+                  }}
+                />
+                {point.node.shape != "circle" ? null : (
+                  <Form.Input
+                    type="text"
+                    size="mini"
+                    width="4"
+                    value={point.node.radius}
+                    label="Radius"
+                    onChange={(e, { value }) => {
+                      let nPoint = point;
+                      nPoint.node.radius = value;
+                      onChange(nPoint);
+                    }}
+                  />
+                )}
+                {point.node.shape == "none" ? null : (
+                  <ColorPicker
+                    value={point.node.fill}
+                    placeholder="Fill"
+                    secondary
+                    label="Color"
+                    width="4"
+                    size="mini"
+                    onChange={(color) => {
+                      let nPoint = point;
+                      nPoint.node.fill = color;
+                      onChange(nPoint);
+                    }}
+                  />
+                )}
+              </Form.Group>
+              <label>Label</label>
+              <Form.Group inline>
+                <Form.Input
+                  type="text"
+                  size="mini"
+                  width="8"
+                  value={point.node.text}
+                  label="Text"
+                  onChange={(e, { value }) => {
+                    let nPoint = point;
+                    nPoint.node.text = value;
+                    onChange(nPoint);
+                  }}
+                />
+                <Form.Dropdown
+                  label="Align"
+                  size="mini"
+                  width="4"
+                  value={point.node.TextAlign}
+                  options={TextAlign}
+                  placeholder="Align"
+                  onChange={(e, { value }) => {
+                    let nPoint = point;
+                    nPoint.node.TextAlign = value;
+                    onChange(nPoint);
+                  }}
+                />
+                <Form.Dropdown
+                  label="Position"
+                  size="mini"
+                  width="4"
+                  value={point.node.textPosition}
+                  options={TextPositions}
+                  placeholder="Position"
+                  onChange={(e, { value }) => {
+                    let nPoint = point;
+                    nPoint.node.textPosition = value;
+                    onChange(nPoint);
+                  }}
+                />
+              </Form.Group>
+              <Form.Group inline>
+                <Form.Checkbox
+                  label="Equation"
+                  checked={point.node.renderAsLatex}
+                  onChange={(e, { value }) => {
+                    let nPoint = point;
+                    nPoint.node.renderAsLatex = value;
+                    onChange(nPoint);
+                  }}
+                />
+                <ColorPicker
+                  value={point.node.color}
+                  label="Color"
+                  width="4"
+                  size="mini"
+                  secondary
+                  onChange={(color) => {
+                    let nPoint = point;
+                    nPoint.node.color = color;
+                    onChange(nPoint);
+                  }}
+                />
+              </Form.Group>
+            </Form>
+          }
+          on={["click"]}
+        />
+      </Form.Group>
+    </Form>
   );
 }
 
@@ -187,20 +342,18 @@ function SegmentElement(props) {
           </Form>
         </Item.Header>
 
-        <Form.Group>
-          {segment.points.map((aPoint, idx) => (
-            <PointElement
-              point={aPoint}
-              onChange={(p) => {
-                let nSegment = segment;
-                nSegment.points = nSegment.points.map((ap, j) =>
-                  j != idx ? ap : p
-                );
-                onChange(nSegment);
-              }}
-            />
-          ))}
-        </Form.Group>
+        {segment.points.map((aPoint, idx) => (
+          <PointElement
+            point={aPoint}
+            onChange={(p) => {
+              let nSegment = segment;
+              nSegment.points = nSegment.points.map((ap, j) =>
+                j != idx ? ap : p
+              );
+              onChange(nSegment);
+            }}
+          />
+        ))}
       </Item.Content>
     </Item>
   );
@@ -217,6 +370,11 @@ function Command(props) {
             <Form.Dropdown
               selection
               placeholder="Type of command..."
+              onChange={(e, { value }) => {
+                let nCommand = command;
+                nCommand.type = value;
+                onChange(nCommand);
+              }}
               value={command.type}
               options={[
                 { key: "draw", text: "Draw", value: "draw" },

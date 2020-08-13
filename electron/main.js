@@ -95,9 +95,7 @@ ipcMain.on(channels.RENDER_FIGURE, (event, data) => {
         tempName +
         "' -interaction=nonstopmode",
       {
-        env: {
-          home: "/Users/javiermatusevich",
-        },
+        env: {},
       },
       function (error, stderr, stdout) {
         if (error) {
