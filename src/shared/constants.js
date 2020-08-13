@@ -6,5 +6,7 @@ module.exports = {
     UPDATE_AVAILABLE: "update-available",
     UPDATE_DOWNLOADED: "update-downloaded",
     RESTART_APP: "restart_app",
+    RENDER_FIGURE: "render_figure",
+    RENDER_FIGURE_COMPLETED: "render_figure_completed",
   },
 };

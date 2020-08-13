@@ -11,20 +11,7 @@ const ipcRenderer = window.ipcRenderer || {
 };
 
 const DEFAULT_FILE_CONTENT = {
-  figures: [
-    {
-      name: "Figure 1",
-    },
-    {
-      name: "Figure 2",
-    },
-    {
-      name: "Figure 3",
-    },
-    {
-      name: "Figure 4",
-    },
-  ],
+  figures: [],
   activeFigureIndex: null,
 };
 class App extends React.Component {

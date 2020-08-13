@@ -2,6 +2,13 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 const url = require("url");
+var temp = require("temp"),
+  fs = require("fs"),
+  util = require("util"),
+  exec = require("child_process").exec;
+
+// Automatically track and cleanup files at exit
+temp.track();
 
 const log = require("electron-log");
 autoUpdater.logger = log;
@@ -17,10 +24,12 @@ function createWindow() {
       slashes: true,
     });
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1260,
     height: 600,
     backgroundColor: "lightgrey",
     webPreferences: {
+      plugins: true,
+      webSecurity: false,
       preload: path.join(__dirname, "preload.js"),
     },
   });
@@ -72,4 +81,37 @@ autoUpdater.on(channels.UPDATE_DOWNLOADED, () => {
 });
 ipcMain.on(channels.RESTART_APP, () => {
   autoUpdater.quitAndInstall();
+});
+
+ipcMain.on(channels.RENDER_FIGURE, (event, data) => {
+  log.info(data);
+  var tempName = temp.path({ suffix: ".tex" });
+  fs.writeFile(tempName, data, function (err) {
+    if (err) return info.error(err);
+    log.info("preparing");
+    process.chdir(path.dirname(tempName));
+    exec(
+      "/Library/TeX/texbin/pdflatex -halt-on-error '" +
+        tempName +
+        "' -interaction=nonstopmode",
+      {
+        env: {
+          home: "/Users/javiermatusevich",
+        },
+      },
+      function (error, stderr, stdout) {
+        if (error) {
+          log.error(`error: ${error.message}`);
+        }
+        if (stderr) {
+          log.error(`stderr: ${stderr}`);
+        }
+        log.info(`stdout: ${stdout}`);
+        event.sender.send(
+          channels.RENDER_FIGURE_COMPLETED,
+          `${tempName.replace(".tex", "")}.pdf`
+        );
+      }
+    );
+  });
 });
